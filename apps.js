@@ -11,7 +11,7 @@ function getDataFromAPI(searchLocation,callback) {
 		dataType: 'json',
 		type: 'GET',
 		success: callback,
-	};
+		};
 	$.ajax(settings)
 }
 
