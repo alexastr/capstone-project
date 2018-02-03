@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<meta name="description" content="Real time and historical environmental data for cities and countries" charset="utf-8">
+	<link rel="stylesheet" type="text/css" href="main.css">
+	<script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.js"></script>
+	<script type="text/javascript" src="apps.js"></script>
+</head>
+<body>
+
+	<div class="search-area">
+		<form class="js-query">
+			<label for="search-bar"></label>
+			<input type="text" name="search-bar" placeholder="Which city do you want to explore?" id="js-query-search">
+			<button type="submit" id="search-button">Take me there!</button>
+		</form>
+	</div>
+
+<!-- need to add something to rehide error message later -->
+<div id="error-message"></div>
+
+<div class="js-return hidden">
+	<button type="submit" id="return-home">Take me somewhere else!</button>
+</div>
+
+</body>
+</html>
