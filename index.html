@@ -12,27 +12,29 @@
 </head>
 <body>
 
-	<h1>Air Pollution Statistics</h1>
-
-	<div class="search-area">
-		<form class="js-query">
-			<label for="search-bar"></label>
-			<input type="text" name="search-bar" placeholder="Which city do you want to explore?" id="js-query-search">
-			<button type="submit" id="search-button">Take me there!</button>
-		</form>
+	<div class="banner">
+		<h1>Air Pollution Statistics</h1>
+		<div class="search-area">
+			<form class="js-query">
+				<label for="search-bar"></label>
+				<input type="text" name="search-bar" placeholder="What place would you like to explore?" id="js-query-search">
+				<button type="submit" id="search-button">Take me there!</button>
+			</form>
+		</div>
 	</div>
 
 <!-- need to add something to rehide error message later -->
 <div id="error-message"></div>
+
+<div id="map"></div>
 
 <div class="js-city-results">
 	<div></div>
 	<div></div>
 	<div></div>
 	<div></div>
+	<div></div>
 </div>
-
-<div id="map"></div>
 
 <div class="js-return hidden">
 	<button type="submit" id="return-home">Take me somewhere else!</button>

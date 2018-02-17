@@ -15,7 +15,6 @@ var AQIscale = {
 	range: [50,100,150,200,300,500],
 }
 
-// how to convert time stamp into an actual time?
 var locationDetails = function getGeoFromAPI(searchAddress) {
 	let settings = {
 		url: geolocationSearch,
@@ -37,10 +36,6 @@ var locationDetails = function getGeoFromAPI(searchAddress) {
 	$.ajax(settings)
 }
 
-// use your location, browser will ask permission
-// can print your initial location with details as first page
-// location based on IP address
-
 var airPollution = function getDataFromAPI(airVisualTemplate,AQIscale,geoLongitude,geoLatitude) {
 	let settings = {
 		url: airVisualSearch,
@@ -54,15 +49,19 @@ var airPollution = function getDataFromAPI(airVisualTemplate,AQIscale,geoLongitu
 		type: 'GET',
 		success: function(returnedData,airVisualTemplate){
 			let usAQI = returnedData.data.current.pollution.aqius;
+			let windData = returnedData.data.current.weather;
 			// let results = $(airVisualTemplate).find('.js-usAQI').text(returnedData.data.current.pollution.aqius)
 			// component in angular/react - framework
 			$('.js-city-results div').eq(0).text('US AQI is: ' + usAQI)
 			let airIndex = findAirQualityClass(usAQI,AQIscale)
 			$('.js-city-results div').eq(1).text('The nearest city is: ' + returnedData.data.city)
-			// moment --> format the date
-			$('.js-city-results div').eq(2).text('Data collection time is: ' + returnedData.data.current.pollution.ts)
+			let timestamp = returnedData.data.current.pollution.ts;
+			let convertedTime = moment(timestamp).format("dddd, MMMM Do YYYY, h:mm:ss a")
+			$('.js-city-results div').eq(2).text('Data collection time is: ' + convertedTime)
 			$('.js-city-results div').eq(3).text('The air quality is: ' + AQIscale.classification[airIndex])
 			$('.js-city-results').css('background-color',AQIscale.color[airIndex])
+			$('.js-city-results div').eq(4).text('The wind speed is: ' + windData.ws + ' m/s')
+			windArrow(windData.wd,map)
 		},
 		};
 	$.ajax(settings)
@@ -76,14 +75,17 @@ function findAirQualityClass(usAQI,AQIscale) {
 	return airClass
 }
 
-// get initial parameters for map
 // function in maps to rectangle/polygon add
 function getInitialPosition() {
+
+	$('#error-message').text("Loading the air statistics in your location...")
 
 	function success(position){
 		let geoLatitude = position.coords.latitude;
 		let geoLongitude = position.coords.longitude;
+		$('#error-message').text(" ")
 		initMap(geoLongitude,geoLatitude)
+		airPollution(airVisualTemplate,AQIscale,geoLongitude,geoLatitude)
 	}
 
 	function error(){
@@ -119,6 +121,25 @@ function initMap(geoLongitude,geoLatitude) {
 // }
 }
 
+// function windArrow(windDirection,map){
+// 	let changeLat = Math.sin(windDirection*(Math.PI/180)
+// 	let changeLong = Math.cos(windDirection*(Math.PI/180)
+
+// 	let lineSymbol = {
+//           path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW
+//         };
+
+//     // Create the polyline and add the symbol via the 'icons' property.
+//     let line = new google.maps.Polyline({
+//           path: [{lat: geoLatitude, lng: geoLongitude}, {lat: geoLatitude + changeLat, lng: geoLongitude + changeLong}],
+//           icons: [{
+//             icon: lineSymbol,
+//             offset: '100%'
+//           }],
+//           map: map
+//         });
+//       }
+// }
 
 // function to handle API query results
 function handleQueryResponse(data,airVisualTemplate) {
@@ -143,8 +164,6 @@ function watchSubmit() {
 	})
 }
 
-// get current geolocation, call api
-// init map function with some parameters
 $(getInitialPosition);
 $(watchSubmit);
 
