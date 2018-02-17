@@ -1,3 +1,66 @@
 .hidden {
 	visibility: hidden;
 }
+
+#map {
+        height: 70%;
+}
+
+/* Optional: Makes the sample page fill the window. */
+html, body {
+        height: 100%;
+        margin: 0px;
+        padding: 0px;
+        font-family: 'Open Sans', sans-serif;
+        top: 0;
+        left: 0;
+}
+
+.banner {
+	background-color: white;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	margin: 0px;
+	padding: 0px;
+	font-weight: bold;
+}
+
+h1 {
+	font-size: 20px;
+	margin: 12px 0px 6px 0px;
+}
+
+.js-query {
+	height: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin: 6px 0px 12px 0px;
+}
+
+#js-query-search, #search-button {
+	height: 100%;
+	border-radius: 5px;
+	border: 1px solid gray;
+}
+
+/*make button change color*/
+#search-button {
+	background-color: skyblue;
+	color: white;
+	margin: 0px 0px 0px 15px;
+	flex-basis: 1;
+}
+
+#js-query-search {
+	margin: 0px 15px 0px 0px;
+	flex-basis: 3;
+}
+
+#error-message {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
