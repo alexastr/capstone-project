@@ -4,6 +4,7 @@ var geolocationSearch = 'https://maps.googleapis.com/maps/api/geocode/json'
 var geolocationKey = 'AIzaSyDORqhhYfrlbUmCv16-TTXPy5aznihPe5A'
 var airVisualTemplate = '<div class="js-usAQI"></div>'
 var airPollutionData
+let map
 // make a single object with different key
 var AQIscale = {
 	category: ['0 to 50','51 to 100','101 to 150','151 to 200','201 to 300','301 to 500'],
@@ -61,7 +62,7 @@ var airPollution = function getDataFromAPI(airVisualTemplate,AQIscale,geoLongitu
 			$('.js-city-results div').eq(3).text('The air quality is: ' + AQIscale.classification[airIndex])
 			$('.js-city-results').css('background-color',AQIscale.color[airIndex])
 			$('.js-city-results div').eq(4).text('The wind speed is: ' + windData.ws + ' m/s')
-			windArrow(windData.wd,map)
+			windArrow(windData.wd,map,geoLatitude,geoLongitude)
 		},
 		};
 	$.ajax(settings)
@@ -84,6 +85,7 @@ function getInitialPosition() {
 		let geoLatitude = position.coords.latitude;
 		let geoLongitude = position.coords.longitude;
 		$('#error-message').text(" ")
+		console.log(geoLongitude,geoLatitude)
 		initMap(geoLongitude,geoLatitude)
 		airPollution(airVisualTemplate,AQIscale,geoLongitude,geoLatitude)
 	}
@@ -98,7 +100,7 @@ function getInitialPosition() {
 // calling map with variable parameters
 function initMap(geoLongitude,geoLatitude) {
 	let LatLng = {lat: geoLatitude, lng: geoLongitude}
-    let map = new google.maps.Map(document.getElementById('map'), {
+    map = new google.maps.Map(document.getElementById('map'), {
           center: LatLng,
           zoom: 8
     });
@@ -110,36 +112,43 @@ function initMap(geoLongitude,geoLatitude) {
     	draggable: true,
     	animation: google.maps.Animation.DROP
   });
-//     marker.addListener('click', toggleBounce())
 
-// function toggleBounce() {
-//   if (marker.getAnimation() !== null) {
-//     marker.setAnimation(null);
-//   } else {
-//     marker.setAnimation(google.maps.Animation.BOUNCE);
-//   }
-// }
+    // definition of function not result of function
+    // passing the function NOT calling the function
+    // the same for all listeners
+	    marker.addListener('click', toggleBounce)
+
+	function toggleBounce() {
+	  if (marker.getAnimation() !== null) {
+	    marker.setAnimation(null);
+	  } 
+	  else {
+	    marker.setAnimation(google.maps.Animation.BOUNCE);
+	  }
+	}
 }
 
-// function windArrow(windDirection,map){
-// 	let changeLat = Math.sin(windDirection*(Math.PI/180)
-// 	let changeLong = Math.cos(windDirection*(Math.PI/180)
+function windArrow(windDirection,map,geoLatitude,geoLongitude){
+	let scale = 1
+	let changeLat = scale*Math.sin(windDirection*(Math.PI/180))
+	let changeLong = scale*Math.cos(windDirection*(Math.PI/180))
 
-// 	let lineSymbol = {
-//           path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW
-//         };
+	let lineSymbol = {
+          path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW
+        };
 
-//     // Create the polyline and add the symbol via the 'icons' property.
-//     let line = new google.maps.Polyline({
-//           path: [{lat: geoLatitude, lng: geoLongitude}, {lat: geoLatitude + changeLat, lng: geoLongitude + changeLong}],
-//           icons: [{
-//             icon: lineSymbol,
-//             offset: '100%'
-//           }],
-//           map: map
-//         });
-//       }
-// }
+    // Create the polyline and add the symbol via the 'icons' property.
+    let line = new google.maps.Polyline({
+    	// path: [{lat: geoLatitude, lng: geoLongitude}, {lat:  52.5003095, lng:  -0.07530440000000002}],
+          path: [{lat: geoLatitude, lng: geoLongitude}, {lat: geoLatitude + changeLat, lng: geoLongitude + changeLong}],
+          icons: [{
+            icon: lineSymbol,
+            offset: '100%'
+          }],
+        });
+
+    line.setMap(map)
+      }
 
 // function to handle API query results
 function handleQueryResponse(data,airVisualTemplate) {
@@ -169,3 +178,6 @@ $(watchSubmit);
 
 // points on map --> direct location or area (add a few points)
 // graph
+
+// get position of a click in the map --> events in google map
+// distinguish movement and event click
