@@ -2,6 +2,7 @@ var airVisualSearch = 'http://api.airvisual.com/v2/nearest_city'
 var airVisualKey = 'cM9MW8ehQLgrwsmqc'
 var geolocationSearch = 'https://maps.googleapis.com/maps/api/geocode/json'
 var geolocationKey = 'AIzaSyDORqhhYfrlbUmCv16-TTXPy5aznihPe5A'
+var worldBankSearch = 'http://api.worldbank.org/v2/indicators'
 var airVisualTemplate = '<div class="js-usAQI"></div>'
 var airPollutionData
 let map
@@ -68,33 +69,29 @@ var airPollution = function getDataFromAPI(airVisualTemplate,AQIscale,geoLongitu
 	$.ajax(settings)
 }
 
+var worldBankSearch =function getDataFromWorldBank() {
+	let settings = {
+		url: worldBankSearch,
+		data: {
+			frequency: 'Y',
+			date: '2007:2017',
+			format: 'json',
+		},
+		dataType: 'json',
+		async: true,
+		type: 'GET',
+		success: function(){
+			console.log('success')
+		}
+	}
+}
+
 function findAirQualityClass(usAQI,AQIscale) {
 	let roundedNum = Math.ceil(usAQI/50)*50
 	let airClass = AQIscale.range.findIndex(function(element){
 		return element == roundedNum
 	})
 	return airClass
-}
-
-// function in maps to rectangle/polygon add
-function getInitialPosition() {
-
-	$('#error-message').text("Loading the air statistics in your location...")
-
-	function success(position){
-		let geoLatitude = position.coords.latitude;
-		let geoLongitude = position.coords.longitude;
-		$('#error-message').text(" ")
-		console.log(geoLongitude,geoLatitude)
-		initMap(geoLongitude,geoLatitude)
-		airPollution(airVisualTemplate,AQIscale,geoLongitude,geoLatitude)
-	}
-
-	function error(){
-		console.log("an error has occurred")
-	}
-
-	navigator.geolocation.getCurrentPosition(success,error);
 }
 
 // calling map with variable parameters
@@ -126,34 +123,99 @@ function initMap(geoLongitude,geoLatitude) {
 	    marker.setAnimation(google.maps.Animation.BOUNCE);
 	  }
 	}
+
+	// map.addListener('center_changed', function() {
+ //    // 3 seconds after the center of the map has changed, pan back to the
+ //    // marker.
+ //      window.setTimeout(function() {
+ //        map.panTo(marker.getPosition());
+ //      }, 3000);
+ //    });
+
+ //    marker.addListener('click', function() {
+ //      map.setZoom(8);
+ //      map.setCenter(marker.getPosition());
+ //    });
+
+   map.addListener(map, 'click', function(event) {
+   placeMarker(event.latLng,map);
+	});
 }
 
 function windArrow(windDirection,map,geoLatitude,geoLongitude){
-	let scale = 1
+	let scale = 0.4
+	let offSet = 0.18
 	let changeLat = scale*Math.sin(windDirection*(Math.PI/180))
 	let changeLong = scale*Math.cos(windDirection*(Math.PI/180))
 
 	let lineSymbol = {
-          path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW
+          path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+          fillColor: 'red',
+          fillOpacity: 0.8,
+          strokeColor: 'red',
+          strokeOpacity: 0.8,
+          strokeWeight: 5,
+
         };
 
     // Create the polyline and add the symbol via the 'icons' property.
     let line = new google.maps.Polyline({
-    	// path: [{lat: geoLatitude, lng: geoLongitude}, {lat:  52.5003095, lng:  -0.07530440000000002}],
-          path: [{lat: geoLatitude, lng: geoLongitude}, {lat: geoLatitude + changeLat, lng: geoLongitude + changeLong}],
+          path: [{lat: geoLatitude - offSet, lng: geoLongitude + offSet}, {lat: geoLatitude - offSet + changeLat, lng: geoLongitude + offSet + changeLong}],
+          strokeColor: 'red',
+          strokeOpacity: 0.8,
+          strokeWeight: 5,
           icons: [{
             icon: lineSymbol,
-            offset: '100%'
+            offset: '100%',
           }],
         });
 
     line.setMap(map)
-      }
+    animateCircle(line)
+}
+
+
+function placeMarker(location,map) {
+var marker = new google.maps.Marker({
+    position: location, 
+    map: map
+});
+map.panTo(location)
+}
+
+// Use the DOM setInterval() function to change the offset of the symbol
+// at fixed intervals.
+function animateCircle(line) {
+  var count = 0;
+  window.setInterval(function() {
+    count = (count + 1) % 200;
+    var icons = line.get('icons');
+    icons[0].offset = (count / 2) + '%';
+    line.set('icons', icons);
+	}, 20);
+}
 
 // function to handle API query results
 function handleQueryResponse(data,airVisualTemplate) {
 	let results = $(airVisualTemplate).find('.js-usAQI').text(data.pollution.aqius)
 	$('.js-city-results').html(results)
+}
+
+// function in maps to rectangle/polygon add
+function getInitialPosition() {
+	$('#error-message').text("Loading the air statistics in your location...")
+	function success(position){
+		let geoLatitude = position.coords.latitude;
+		let geoLongitude = position.coords.longitude;
+		$('#error-message').text(" ")
+		initMap(geoLongitude,geoLatitude)
+		airPollution(airVisualTemplate,AQIscale,geoLongitude,geoLatitude)
+		getDataFromWorldBank()
+	}
+	function error(){
+		console.log("an error has occurred")
+	}
+	navigator.geolocation.getCurrentPosition(success,error);
 }
 
 function watchSubmit() {
@@ -169,12 +231,38 @@ function watchSubmit() {
 		locationDetails(query)
 		$('.js-search-continue').toggleClass('hidden')
 		let now = moment();
-		console.log(now)
 	})
 }
 
 $(getInitialPosition);
 $(watchSubmit);
+
+$(function () { 
+    $('#container').highcharts({
+        chart: {
+            type: 'line'
+        },
+        title: {
+            text: 'Air Pollution over Time'
+        },
+        xAxis: {
+            categories: ['2001', '2002', '2003']
+        },
+        yAxis: {
+            title: {
+                text: 'CO2 emissions'
+            }
+        },
+        series: [{
+            name: 'Jane',
+            data: [1, 0, 4]
+        }, {
+            name: 'John',
+            data: [5, 7, 3]
+        }]
+    });
+        console.log('chart')
+});
 
 // points on map --> direct location or area (add a few points)
 // graph
