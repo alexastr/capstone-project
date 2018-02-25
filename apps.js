@@ -2,9 +2,14 @@ var airVisualSearch = 'http://api.airvisual.com/v2/nearest_city'
 var airVisualKey = 'cM9MW8ehQLgrwsmqc'
 var geolocationSearch = 'https://maps.googleapis.com/maps/api/geocode/json'
 var geolocationKey = 'AIzaSyDORqhhYfrlbUmCv16-TTXPy5aznihPe5A'
-var worldBankSearch = 'http://api.worldbank.org/v2/indicators'
+var worldBankURL1 = 'http://api.worldbank.org/v2/countries/'
+var worldBankURL2 = '/indicators/EN.ATM.GHGT.KT.CE?date=1970:2010&frequency=Y&format=json'
 var airVisualTemplate = '<div class="js-usAQI"></div>'
 var airPollutionData
+// var json = $.getJSON("countrycode.json",function(data){
+// 	let countrycode = JSON.parse(data.responseText); 
+// });  
+// console.log(json);
 let map
 // make a single object with different key
 var AQIscale = {
@@ -52,7 +57,7 @@ var airPollution = function getDataFromAPI(airVisualTemplate,AQIscale,geoLongitu
 		success: function(returnedData,airVisualTemplate){
 			let usAQI = returnedData.data.current.pollution.aqius;
 			let windData = returnedData.data.current.weather;
-			// let results = $(airVisualTemplate).find('.js-usAQI').text(returnedData.data.current.pollution.aqius)
+			let countryName = returnedData.data.country;
 			// component in angular/react - framework
 			$('.js-city-results div').eq(0).text('US AQI is: ' + usAQI)
 			let airIndex = findAirQualityClass(usAQI,AQIscale)
@@ -64,26 +69,59 @@ var airPollution = function getDataFromAPI(airVisualTemplate,AQIscale,geoLongitu
 			$('.js-city-results').css('background-color',AQIscale.color[airIndex])
 			$('.js-city-results div').eq(4).text('The wind speed is: ' + windData.ws + ' m/s')
 			windArrow(windData.wd,map,geoLatitude,geoLongitude)
+			let countryQueried = 'chn'
+			worldBankSearch(countryQueried)
 		},
 		};
 	$.ajax(settings)
 }
 
-var worldBankSearch =function getDataFromWorldBank() {
+var worldBankSearch = function getDataFromWorldBank(countryQueried) {
 	let settings = {
-		url: worldBankSearch,
-		data: {
-			frequency: 'Y',
-			date: '2007:2017',
-			format: 'json',
-		},
+		url: worldBankURL1 + countryQueried + worldBankURL2,
+		data: {},
 		dataType: 'json',
 		async: true,
 		type: 'GET',
-		success: function(){
-			console.log('success')
+		success: function(returnedData){
+			let numberYears = returnedData[0].total
+			let yearCo2Data = getYears(numberYears,returnedData)
+			$(function () { 
+			    $('#container').highcharts({
+			        chart: {
+			            type: 'line'
+			        },
+			        title: {
+			            text: 'Total Greenhouse Gas Emissions'
+			        },
+			        xAxis: {
+			            categories: yearCo2Data.years.reverse()
+			        },
+			        yAxis: {
+			            title: {
+			                text: 'kt of CO2 equivalent'
+			            }
+			        },
+			        series: [{
+			            data: yearCo2Data.co2Data.reverse(),
+			            name: 'annual data',
+			            showInLegend: false,
+			        }]
+			    });
+});
 		}
 	}
+	$.ajax(settings)
+}
+
+function getYears(numberYears,returnedData){
+	let years = []
+	let co2Data = []
+	for (i = 0; i <= numberYears-1; i++) {
+		years[i] = returnedData[1][i].date
+		co2Data[i] = returnedData[1][i].value
+	}
+	return {years, co2Data}
 }
 
 function findAirQualityClass(usAQI,AQIscale) {
@@ -124,21 +162,16 @@ function initMap(geoLongitude,geoLatitude) {
 	  }
 	}
 
-	// map.addListener('center_changed', function() {
- //    // 3 seconds after the center of the map has changed, pan back to the
- //    // marker.
- //      window.setTimeout(function() {
- //        map.panTo(marker.getPosition());
- //      }, 3000);
- //    });
+   map.addListener('click', function(event) {
+   marker.setMap(null)
+   // line.setMap(null)
+   marker = placeMarker(event.latLng,map);
+   let geoLatitude = event.latLng.lat()
+   let geoLongitude = event.latLng.lng()
+   airPollution(airVisualTemplate,AQIscale,geoLongitude,geoLatitude)
+   // let latLng = marker.getPosition()
+   // console.log(latLng)
 
- //    marker.addListener('click', function() {
- //      map.setZoom(8);
- //      map.setCenter(marker.getPosition());
- //    });
-
-   map.addListener(map, 'click', function(event) {
-   placeMarker(event.latLng,map);
 	});
 }
 
@@ -176,11 +209,12 @@ function windArrow(windDirection,map,geoLatitude,geoLongitude){
 
 
 function placeMarker(location,map) {
-var marker = new google.maps.Marker({
+let marker = new google.maps.Marker({
     position: location, 
     map: map
 });
 map.panTo(location)
+return marker
 }
 
 // Use the DOM setInterval() function to change the offset of the symbol
@@ -210,7 +244,6 @@ function getInitialPosition() {
 		$('#error-message').text(" ")
 		initMap(geoLongitude,geoLatitude)
 		airPollution(airVisualTemplate,AQIscale,geoLongitude,geoLatitude)
-		getDataFromWorldBank()
 	}
 	function error(){
 		console.log("an error has occurred")
@@ -237,35 +270,10 @@ function watchSubmit() {
 $(getInitialPosition);
 $(watchSubmit);
 
-$(function () { 
-    $('#container').highcharts({
-        chart: {
-            type: 'line'
-        },
-        title: {
-            text: 'Air Pollution over Time'
-        },
-        xAxis: {
-            categories: ['2001', '2002', '2003']
-        },
-        yAxis: {
-            title: {
-                text: 'CO2 emissions'
-            }
-        },
-        series: [{
-            name: 'Jane',
-            data: [1, 0, 4]
-        }, {
-            name: 'John',
-            data: [5, 7, 3]
-        }]
-    });
-        console.log('chart')
-});
-
-// points on map --> direct location or area (add a few points)
-// graph
-
-// get position of a click in the map --> events in google map
-// distinguish movement and event click
+var countryCode = $.getJSON("countrycode.json", function (data) {
+			var parsedData = parseJSON(data)
+            var arrItems = [];      // THE ARRAY TO STORE JSON ITEMS.
+            // $.each(data, function (index, value) {
+            //     arrItems.push(value);       // PUSH THE VALUES INSIDE THE ARRAY.
+            // });
+        })

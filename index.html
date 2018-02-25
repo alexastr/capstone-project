@@ -10,6 +10,7 @@
 <!-- 	<script src="Highcharts/code/js/highcharts.js"></script> -->
 	<script src="https://code.highcharts.com/highcharts.src.js"></script>
 	<script type="text/javascript" src="apps.js"></script>
+	<script type="text/javascript" src="countrycode.json"></script>
 	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDORqhhYfrlbUmCv16-TTXPy5aznihPe5A&callback=initMap" async defer></script>
 </head>
 <body>
@@ -28,9 +29,10 @@
 <!-- need to add something to rehide error message later -->
 <div id="error-message"></div>
 
-
+<div class="js-graph">
 	<div id="map"></div>
 	<div id="container"></div>
+</div>
 
 <div class="js-city-results">
 	<div></div>

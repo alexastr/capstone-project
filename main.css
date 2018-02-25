@@ -33,10 +33,20 @@ h1 {
 	margin: 12px 0px 6px 0px;
 }
 
-/*.js-graphics {
+.js-graph {
 	display: flex;
 	flex-direction: row;
-}*/
+}
+
+#map {
+	flex: 1;
+	min-width: 50%;
+	min-height: 400px;
+}
+
+#container {
+	flex: 1;
+}
 
 .js-query {
 	height: 100%;
