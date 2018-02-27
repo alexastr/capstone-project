@@ -60,6 +60,7 @@ h1 {
 	height: 100%;
 	border-radius: 5px;
 	border: 1px solid gray;
+	flex: 1;
 }
 
 /*make button change color*/
@@ -68,6 +69,7 @@ h1 {
 	color: white;
 	margin: 0px 0px 0px 15px;
 	flex-basis: 1;
+	height: 30px;
 }
 
 #search-button:hover {
