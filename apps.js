@@ -1,4 +1,4 @@
-var airVisualSearch = 'http://api.airvisual.com/v2/nearest_city'
+var airVisualSearch = 'https://api.airvisual.com/v2/nearest_city'
 var airVisualKey = 'cM9MW8ehQLgrwsmqc'
 var geolocationSearch = 'https://maps.googleapis.com/maps/api/geocode/json'
 var geolocationKey = 'AIzaSyDORqhhYfrlbUmCv16-TTXPy5aznihPe5A'
