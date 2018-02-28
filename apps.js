@@ -33,8 +33,8 @@ var locationDetails = function getGeoFromAPI(searchAddress) {
 		success: function(data){
 			geoLatitude = data.results[0].geometry.location.lat
 			geoLongitude = data.results[0].geometry.location.lng
-			airPollution(airVisualTemplate,AQIscale,geoLongitude,geoLatitude)
 			initMap(geoLongitude,geoLatitude)
+			airPollution(airVisualTemplate,AQIscale,geoLongitude,geoLatitude)
 		},
 		};
 	$.ajax(settings)
@@ -65,10 +65,11 @@ var airPollution = function getDataFromAPI(airVisualTemplate,AQIscale,geoLongitu
 			$('.js-city-results div').eq(3).text('The air quality is: ' + AQIscale.classification[airIndex])
 			$('.js-city-results').css('background-color',AQIscale.color[airIndex])
 			$('.js-city-results div').eq(4).text('The wind speed is: ' + windData.ws + ' m/s')
-			windArrow(windData.wd,map,geoLatitude,geoLongitude)
 			let countryQueried = countrycode[countryName].code; 
 			console.log(countryQueried)
 			worldBankSearch(countryQueried,countryName)
+            let lineHandle = windArrow(windData.wd,map,geoLatitude,geoLongitude)
+            return [lineHandle, windData.wd]
 		},
 		};
 	$.ajax(settings)
@@ -165,7 +166,9 @@ function initMap(geoLongitude,geoLatitude) {
    marker = placeMarker(event.latLng,map);
    let geoLatitude = event.latLng.lat()
    let geoLongitude = event.latLng.lng()
-   airPollution(airVisualTemplate,AQIscale,geoLongitude,geoLatitude)
+   let lineHandle = airPollution(airVisualTemplate,AQIscale,geoLongitude,geoLatitude)
+   lineHandle[0].setMap(null)
+   windArrow(lineHandle[1],map,geoLatitude,geoLongitude)
 	});
 }
 
@@ -199,6 +202,7 @@ function windArrow(windDirection,map,geoLatitude,geoLongitude){
 
     line.setMap(map)
     animateCircle(line)
+    return line
 }
 
 

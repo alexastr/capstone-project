@@ -26,6 +26,7 @@ html, body {
 	margin: 0px;
 	padding: 0px;
 	font-weight: bold;
+	width: 100%;
 }
 
 h1 {
@@ -33,34 +34,55 @@ h1 {
 	margin: 12px 0px 6px 0px;
 }
 
+.space-1, .space-3 {
+	min-height: 3%;
+}
+
 .js-graph {
 	display: flex;
 	flex-direction: row;
+	min-width: 100%;
 }
 
 #map {
 	flex: 1;
-	min-width: 50%;
+	min-width: 49%;
 	min-height: 400px;
+}
+
+.space-2 {
+	min-width: 2%;
+	min-height: 400px;
+	flex: 1;
 }
 
 #container {
 	flex: 1;
+	min-width: 49%;
 }
 
-.js-query {
+.search-area {
 	height: 100%;
-	display: flex;
+	width: 100%;
 	justify-content: center;
 	align-items: center;
 	margin: 6px 0px 12px 0px;
+	flex: 1;
+	display: flex;
+}
+
+.js-query {
+	display: flex;
+	width: 80%;
+	justify-content: center;
+	align-items: center;
 }
 
 #js-query-search, #search-button {
-	height: 100%;
+	height: 30px;
 	border-radius: 5px;
 	border: 1px solid gray;
-	flex: 1;
+	font-size: 14px;
 }
 
 /*make button change color*/
@@ -68,8 +90,7 @@ h1 {
 	background-color: skyblue;
 	color: white;
 	margin: 0px 0px 0px 15px;
-	flex-basis: 1;
-	height: 30px;
+	flex: 1;
 }
 
 #search-button:hover {
@@ -78,11 +99,19 @@ h1 {
 
 #js-query-search {
 	margin: 0px 15px 0px 0px;
-	flex-basis: 3;
+	flex: 4;
 }
 
 #error-message {
 	display: flex;
 	align-items: center;
 	justify-content: center;
+}
+
+.js-city-results {
+	padding: 10px 0px 0px 10px;
+}
+
+.js-city-results div:first-of-type {
+	font-weight: bold;
 }
