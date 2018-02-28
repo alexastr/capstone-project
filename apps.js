@@ -2,7 +2,7 @@ var airVisualSearch = 'https://api.airvisual.com/v2/nearest_city'
 var airVisualKey = 'cM9MW8ehQLgrwsmqc'
 var geolocationSearch = 'https://maps.googleapis.com/maps/api/geocode/json'
 var geolocationKey = 'AIzaSyDORqhhYfrlbUmCv16-TTXPy5aznihPe5A'
-var worldBankURL1 = 'http://api.worldbank.org/v2/countries/'
+var worldBankURL1 = 'https://api.worldbank.org/v2/countries/'
 var worldBankURL2 = '/indicators/EN.ATM.GHGT.KT.CE?date=1970:2010&frequency=Y&format=json'
 var airVisualTemplate = '<div class="js-usAQI"></div>'
 var airPollutionData
